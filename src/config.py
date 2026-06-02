@@ -1,0 +1,9 @@
+RANDOM_STATE = 42
+TARGET_COL = 'target'
+CATEGORICAL_COL = ['merch', 'cat_id', 'name_1', 'name_2', 'gender', 'street', 'one_city', 'us_state', 'jobs']
+NUMERICAL_COL = ['amount', 'post_code', 'lat', 'lon', 'population_city', 'merchant_lat', 'merchant_lon', 'transaction_hour', 'transaction_dayofweek', 'transaction_month', 'transaction_day', 'is_weekend', 'is_night', 'distance_km', 'amount_log1p', 'population_log1p']
+TRAIN_PATH = 'data/train.csv'
+MODEL_PATH = 'models/catboost_model.cbm'
+INPUT_DIR = 'input'
+OUTPUT_DIR = 'output'
+THRESHOLD = 0.97
