@@ -4,13 +4,13 @@ sys.path.append(os.path.abspath('./src'))
 import logging
 import pandas as pd
 from preprocessing import run_preproc
-from scorer import get_predictions
+from scorer import get_predictions, model
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import time
 import threading
 import config
-
+import artifacts
 
 logging.basicConfig(
     level=logging.INFO,
@@ -38,12 +38,31 @@ class processingService:
             processed_df = run_preproc(self.train, input_df)
             logger.info('Making prediction')
             submission = get_predictions(processed_df, input_file_path)
-            logger.info('Preparing submission file')
+
             timestamp = pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")
             base_name = os.path.splitext(os.path.basename(input_file_path))[0]
+
+            logger.info('Calculating top feature importances')
+            top_features = artifacts.get_feature_importance(model, processed_df.columns, top_k=5)
+            top_features_path = os.path.join(
+                config.TOP_FEATURES_PATH,
+                f'top_features_{timestamp}_{base_name}.json'
+            )
+            saved_top_features_path = artifacts.save_feature_importance(top_features, top_features_path)
+            logger.info('Top feature importances saved to: %s', saved_top_features_path)
+
+            logger.info('Saving predicted score distribution plot')
+            score_distribution_path = artifacts.save_preds_distribution(
+                submission['predicted_score'],
+                os.path.join(config.PREDS_STATS_PATH, f'prediction_distribution_{timestamp}_{base_name}.png')
+            )
+            logger.info('Predicted score distribution saved to: %s', score_distribution_path)
+
+            logger.info('Preparing submission file')
             output_filename = f"predictions_{timestamp}_{base_name}.csv"
-            submission.to_csv(os.path.join(self.output_dir, output_filename), index=False)
-            logger.info('Predictions saved to: %s', output_filename)
+            output_path = os.path.join(self.output_dir, output_filename)
+            submission.to_csv(output_path, index=False)
+            logger.info('Predictions saved to: %s', output_path)
             self.processed_files.add(os.path.abspath(input_file_path))
         except Exception as e:
             logger.error('Error processing file %s: %s', input_file_path, e, exc_info=True)

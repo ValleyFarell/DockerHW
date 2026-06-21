@@ -13,11 +13,15 @@ logger.info('Pretrained model imported successfully...')
 
 def get_predictions(dt, path_to_file):
     logger.info('Making predictions')
-    
+    scores = model.predict_proba(dt)[:, 1]
     submission = pd.DataFrame({
         'index':  pd.read_csv(path_to_file).index,
-        'prediction': (model.predict_proba(dt)[:, 1] > config.THRESHOLD) * 1
+        'prediction': (scores > config.THRESHOLD) * 1,
+        'predicted_score': scores
     })
     logger.info('Prediction complete for file: %s', path_to_file)
 
+
+
     return submission
+

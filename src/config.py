@@ -7,3 +7,5 @@ MODEL_PATH = 'models/catboost_model.cbm'
 INPUT_DIR = 'input'
 OUTPUT_DIR = 'output'
 THRESHOLD = 0.97
+TOP_FEATURES_PATH = 'output/top_features'
+PREDS_STATS_PATH = 'output/score_statistics'
